@@ -1,19 +1,46 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./Dashboard.js";
 import POS from "./pages/POS";
 import ManageProducts from "./pages/ManageProducts";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
-  const isLoggedIn = !!localStorage.getItem("attendant");
-
   return (
     <Routes>
-      <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login />} />
-      <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />} />
-      <Route path="/pos" element={isLoggedIn ? <POS /> : <Navigate to="/" />} />
-      <Route path="/manage-products" element={isLoggedIn ? <ManageProducts /> : <Navigate to="/" />} />
+      {/* Public Routes */}
+      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/login" element={<Login />} />
+
+      {/* Protected Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pos"
+        element={
+          <ProtectedRoute>
+            <POS />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/manage-products"
+        element={
+          <ProtectedRoute>
+            <ManageProducts />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Catch-all */}
+      <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
 }

@@ -1,72 +1,69 @@
-import React, { useState, useEffect, useRef } from "react";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+// src/pages/POS.js
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { getAttendantName } from "../utils/getAttendant";
 import products from "../data/products";
-import { FaTrash, FaArrowUp, FaArrowDown } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-
-import "./POS.css";
 import Header from "../components/Header";
-// const attendantData = JSON.parse(localStorage.getItem("attendant"));
-// const attendantName = attendantData?.username || "Attendant";
-
-const attendantData = JSON.parse(localStorage.getItem("attendant"));
-const attendantName = attendantData?.username || "Attendant";
+import { FaTrash, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import "./POS.css";
 
 function POS() {
+  const attendantName = getAttendantName(); // ✅ Properly retrieved attendant
   const [cart, setCart] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [invoiceCounter, setInvoiceCounter] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
-  const [scrollDirection, setScrollDirection] = useState("down");
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const cartEndRef = useRef(null);
-  const navigate = useNavigate();
 
+  // ✅ Load invoices & counter on mount
   useEffect(() => {
     const savedInvoices = JSON.parse(localStorage.getItem("invoices")) || [];
     setInvoices(savedInvoices);
     const savedCounter = parseInt(localStorage.getItem("invoiceCounter")) || 0;
     setInvoiceCounter(savedCounter);
-  }, []);
 
-  // ✅ Scroll Button Toggle Logic
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 100) {
-        setScrollDirection("up");
-      } else {
-        setScrollDirection("down");
-      }
-    };
+    const handleScroll = () => setShowScrollButton(window.scrollY > 200);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleScrollButton = () => {
-    if (scrollDirection === "up") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      setScrollDirection("down");
-    } else {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-      setScrollDirection("up");
-    }
-  };
+  // ✅ Memoized addToCart to fix missing dependency warning
+  const addToCart = useCallback(
+    (product) => {
+      setCart((prevCart) => {
+        const existing = prevCart.find((item) => item.id === product.id);
+        if (existing) {
+          return prevCart.map((item) =>
+            item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+          );
+        } else {
+          return [...prevCart, { ...product, qty: 1 }];
+        }
+      });
 
-  // ✅ Add to Cart
-  const addToCart = (product) => {
-    const existing = cart.find((item) => item.id === product.id);
-    const updatedCart = existing
-      ? cart.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
-        )
-      : [...cart, { ...product, qty: 1 }];
-    setCart(updatedCart);
-    setTimeout(() => cartEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-  };
+      setTimeout(() => {
+        cartEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    },
+    []
+  );
+
+  // ✅ Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter" && products.length > 0) addToCart(products[0]);
+      if (e.key === "Delete" && cart.length > 0) removeFromCart(cart[cart.length - 1].id);
+      if (e.key === "ArrowUp" && cart.length > 0) updateQuantity(cart[cart.length - 1].id, 1);
+      if (e.key === "ArrowDown" && cart.length > 0) updateQuantity(cart[cart.length - 1].id, -1);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [cart, addToCart]);
 
   const updateQuantity = (id, delta) => {
-    setCart((prev) =>
-      prev
+    setCart((prevCart) =>
+      prevCart
         .map((item) =>
           item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
         )
@@ -74,24 +71,27 @@ function POS() {
     );
   };
 
-  const removeFromCart = (id) => setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (id) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  };
 
-  const calculateTotal = () =>
-    cart.reduce((total, item) => total + item.price * item.qty, 0);
+  const calculateTotal = () => cart.reduce((total, item) => total + item.price * item.qty, 0);
 
   const generateInvoiceNumber = () => `INV-${String(invoiceCounter + 1).padStart(5, "0")}`;
 
   const handlePrint = () => {
     if (cart.length === 0) return;
+    const newInvoiceNo = generateInvoiceNumber();
     const invoice = {
       id: Date.now(),
-      invoiceNo: generateInvoiceNumber(),
+      invoiceNo: newInvoiceNo,
       date: new Date().toLocaleString(),
       items: cart,
       total: calculateTotal(),
       attendant: attendantName,
       paymentMethod,
     };
+
     const updatedInvoices = [...invoices, invoice];
     localStorage.setItem("invoices", JSON.stringify(updatedInvoices));
     localStorage.setItem("invoiceCounter", invoiceCounter + 1);
@@ -119,14 +119,17 @@ function POS() {
         </head>
         <body>
           <h2>Shukurullah Nig. Ltd</h2>
-          <p>Block 390, Talba Estate, Off Bida Road, Minna</p>
+          <p>Block 390, Talba Estate</p>
+          <p>Off Bida Road, Minna</p>
           <p>09019286029</p>
           <hr/>
           <p><strong>Invoice No:</strong> ${invoice.invoiceNo}</p>
           <p>Date: ${invoice.date}</p>
           <hr/>
           <div class="items">
-          ${invoice.items.map(item => `<p>${item.name} x ${item.qty} <span>₦${(item.price * item.qty).toLocaleString()}</span></p>`).join("")}
+          ${invoice.items
+            .map((item) => `<p>${item.name} x ${item.qty} <span>₦${(item.price * item.qty).toLocaleString()}</span></p>`)
+            .join("")}
           </div>
           <hr/>
           <h3>Total: ₦${invoice.total.toLocaleString()}</h3>
@@ -144,22 +147,29 @@ function POS() {
     printWindow.print();
   };
 
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToBottom = () => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+
   return (
-    <div className="pos-wrapper">
-      {/* ✅ Fixed Header */}
-       <Header attendantName={attendantName} />
+    <>
+      <Header />
       <div className="receipt-container">
+        <h2 className="store-name">Shukurullah Nig. Ltd</h2>
+        <p className="store-contact">Attendant: {attendantName}</p>
+
+        {/* --- Product Section --- */}
         <div className="products">
           {products.map((p) => (
             <div key={p.id} className="product-card">
               <img src={p.image} alt={p.alt} />
-              <p className="product-name">{p.name}</p>
-              <p className="price-tag">₦{p.price}</p>
+              <p>{p.name}</p>
+              <p>₦{p.price}</p>
               <button onClick={() => addToCart(p)}>Add</button>
             </div>
           ))}
         </div>
 
+        {/* --- Cart Section --- */}
         <h3>Cart</h3>
         <div className="cart">
           {cart.map((item) => (
@@ -169,9 +179,7 @@ function POS() {
                 <button onClick={() => updateQuantity(item.id, -1)}>-</button>
                 <span>{item.qty}</span>
                 <button onClick={() => updateQuantity(item.id, 1)}>+</button>
-                <button className="remove-btn" onClick={() => removeFromCart(item.id)}>
-                  <FaTrash />
-                </button>
+                <button className="remove-btn" onClick={() => removeFromCart(item.id)}><FaTrash /></button>
               </div>
               <p>₦{item.price * item.qty}</p>
             </div>
@@ -180,6 +188,7 @@ function POS() {
         </div>
         <h4>Total: ₦{calculateTotal()}</h4>
 
+        {/* --- Payment Method --- */}
         <div className="payment-method">
           <label><strong>Payment Method:</strong></label>
           <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
@@ -192,11 +201,11 @@ function POS() {
         <button onClick={handlePrint} disabled={cart.length === 0}>Print Receipt</button>
       </div>
 
-      {/* ✅ Scroll Arrow */}
-      <button className="scroll-btn" onClick={handleScrollButton}>
-        {scrollDirection === "up" ? <FaArrowUp /> : <FaArrowDown />}
+      {/* Scroll Buttons */}
+      <button className="scroll-btn" onClick={showScrollButton ? scrollToTop : scrollToBottom}>
+        {showScrollButton ? <FaArrowUp /> : <FaArrowDown />}
       </button>
-    </div>
+    </>
   );
 }
 

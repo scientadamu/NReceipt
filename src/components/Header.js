@@ -1,16 +1,22 @@
 // src/components/Header.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import "./Header.css";
 
 function Header({ attendantName }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("attendant");
-    navigate("/");
+    navigate("/login"); // ✅ Redirect to login after logout
+  };
+
+  const navigateTo = (path) => {
+    if (location.pathname !== path) navigate(path);
+    setMenuOpen(false);
   };
 
   return (
@@ -22,9 +28,24 @@ function Header({ attendantName }) {
 
       {/* Desktop Navigation */}
       <nav className={`header-nav ${menuOpen ? "open" : ""}`}>
-        <button onClick={() => { navigate("/dashboard"); setMenuOpen(false); }}>Dashboard</button>
-        <button onClick={() => { navigate("/pos"); setMenuOpen(false); }}>POS</button>
-        <button onClick={() => { navigate("/manage-products"); setMenuOpen(false); }}>Products</button>
+        <button 
+          className={location.pathname === "/dashboard" ? "active" : ""} 
+          onClick={() => navigateTo("/dashboard")}
+        >
+          Dashboard
+        </button>
+        <button 
+          className={location.pathname === "/pos" ? "active" : ""} 
+          onClick={() => navigateTo("/pos")}
+        >
+          POS
+        </button>
+        <button 
+          className={location.pathname === "/manage-products" ? "active" : ""} 
+          onClick={() => navigateTo("/manage-products")}
+        >
+          Products
+        </button>
         <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </nav>
 
