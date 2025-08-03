@@ -1,0 +1,27 @@
+.stock-container {
+  padding: 20px;
+}
+
+.stock-category {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 6px;
+  background: #f9f9f9;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.out-of-stock {
+  background-color: #ffe6e6;
+  color: red;
+}

@@ -1,0 +1,70 @@
+.manage-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.manage-container h2 {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Form Section */
+.form-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.form-section input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.form-section button {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.form-section button:hover { background: #218838; }
+
+/* Product List */
+.product-list {
+  margin-top: 15px;
+}
+.product-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.product-item.hidden-product {
+  opacity: 0.5;
+}
+.actions button {
+  margin-left: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.actions button:nth-child(1) { background: #ffc107; color: #fff; }
+.actions button:nth-child(2) { background: #17a2b8; color: #fff; }
+.actions button:nth-child(3) { background: #dc3545; color: #fff; }
+.actions button:hover { opacity: 0.9; }
