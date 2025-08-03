@@ -100,52 +100,94 @@ function POS() {
     printInvoice(invoice);
     setCart([]);
   };
+const printInvoice = (invoice) => {
+  const printWindow = window.open("", "_blank");
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Receipt - ${invoice.invoiceNo}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #000;
+            line-height: 1.6;
+            width: 70mm;
+            margin: auto;
+            padding: 10px;
+          }
+          h2 {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 5px;
+          }
+          p, h3 {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+          }
+          h3 {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 8px 0;
+          }
+          hr {
+            border: none;
+            border-top: 1px dashed #333;
+            margin: 8px 0;
+          }
+          .items p {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin: 2px 0;
+          }
+          .total {
+            font-size: 15px;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 8px;
+          }
+          .footer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Shukurullah Nig. Ltd</h2>
+        <p>Block 390, Talba Estate</p>
+        <p>Off Bida Road, Minna</p>
+        <p>09019286029</p>
+        <hr/>
+        <p><strong>Invoice No:</strong> ${invoice.invoiceNo}</p>
+        <p><strong>Date:</strong> ${invoice.date}</p>
+        <hr/>
+        <div class="items">
+        ${invoice.items
+          .map((item) =>
+            `<p><span>${item.name} x ${item.qty}</span><span>₦${(item.price * item.qty).toLocaleString()}</span></p>`
+          )
+          .join("")}
+        </div>
+        <hr/>
+        <div class="total">Total: ₦${invoice.total.toLocaleString()}</div>
+        <p><strong>Payment:</strong> ${invoice.paymentMethod}</p>
+        <hr/>
+        <p><strong>Attended By:</strong> ${invoice.attendant}</p>
+        <div class="footer">
+          <p>Thank you for your Patronage!</p>
+          <p>See you next time!</p>
+        </div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
 
-  const printInvoice = (invoice) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Receipt - ${invoice.invoiceNo}</title>
-          <style>
-            body { font-family: 'Courier New', monospace; font-size: 16px; line-height: 2.0; width: 70mm; margin: auto; }
-            h2, h3, p { margin: 0; text-align: center; }
-            h2 { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
-            h3 { font-size: 16px; margin-bottom: 6px; }
-            hr { border: none; border-top: 1px dashed #000; margin: 8px 0; }
-            .items p { display: flex; justify-content: space-between; margin: 0; }
-            .footer { text-align: center; margin-top: 12px; font-size: 14px; }
-          </style>
-        </head>
-        <body>
-          <h2>Shukurullah Nig. Ltd</h2>
-          <p>Block 390, Talba Estate</p>
-          <p>Off Bida Road, Minna</p>
-          <p>09019286029</p>
-          <hr/>
-          <p><strong>Invoice No:</strong> ${invoice.invoiceNo}</p>
-          <p>Date: ${invoice.date}</p>
-          <hr/>
-          <div class="items">
-          ${invoice.items
-            .map((item) => `<p>${item.name} x ${item.qty} <span>₦${(item.price * item.qty).toLocaleString()}</span></p>`)
-            .join("")}
-          </div>
-          <hr/>
-          <h3>Total: ₦${invoice.total.toLocaleString()}</h3>
-          <p><strong>Payment:</strong> ${invoice.paymentMethod}</p>
-          <hr/>
-          <p><strong>Attended By:</strong> ${invoice.attendant}</p>
-          <div class="footer">
-            <p>Thank you for your Patronage!</p>
-            <p>See you next time!</p>
-          </div>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-  };
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   const scrollToBottom = () => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
