@@ -68,6 +68,7 @@ function Dashboard() {
       <div className="button-group">
         <button onClick={() => navigate("/pos")}>Go to POS</button>
         <button onClick={() => navigate("/manage-products")}>Manage Products</button>
+        <button onClick={() => navigate("/kulikuli-production")}>Manage Production</button> {/* ✅ NEW */}
         <button onClick={handleLogout} className="logout-btn">
           Logout
         </button>

@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Dashboard from "./Dashboard.js";
 import POS from "./pages/POS";
 import ManageProducts from "./pages/ManageProducts";
+import KulikuliProduction from "./pages/KulikuliProduction"; // ✅ Import added
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -35,6 +36,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ManageProducts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kulikuli-production" // ✅ New Route for Production Management
+        element={
+          <ProtectedRoute>
+            <KulikuliProduction />
           </ProtectedRoute>
         }
       />
