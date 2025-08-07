@@ -1,33 +1,47 @@
-// src/pages/POS.js
+// ✅ Edited POS.js to load products from stock records (localStorage)
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { getAttendantName } from "../utils/getAttendant";
-import products from "../data/products";
 import Header from "../components/Header";
 import { FaTrash, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import "./POS.css";
 
 function POS() {
-  const attendantName = getAttendantName(); // ✅ Properly retrieved attendant
+  const attendantName = getAttendantName();
   const [cart, setCart] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [invoiceCounter, setInvoiceCounter] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
+  const [products, setProducts] = useState([]);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const cartEndRef = useRef(null);
 
-  // ✅ Load invoices & counter on mount
+  // ✅ Load products, invoices, counter on mount
   useEffect(() => {
     const savedInvoices = JSON.parse(localStorage.getItem("invoices")) || [];
     setInvoices(savedInvoices);
+
     const savedCounter = parseInt(localStorage.getItem("invoiceCounter")) || 0;
     setInvoiceCounter(savedCounter);
+
+    // ✅ Load products from localStorage (stock data)
+    const storedData = JSON.parse(localStorage.getItem("shopData"));
+    if (storedData && storedData.products) {
+      const activeProducts = storedData.products.filter(p => !p.hidden);
+      const productsWithId = activeProducts.map((p, index) => ({
+        ...p,
+        id: index + 1,
+        image: p.image ? `/images/${p.image}` : null,
+        alt: p.name
+      }));
+      setProducts(productsWithId);
+    }
 
     const handleScroll = () => setShowScrollButton(window.scrollY > 200);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ Memoized addToCart to fix missing dependency warning
   const addToCart = useCallback(
     (product) => {
       setCart((prevCart) => {
@@ -48,7 +62,6 @@ function POS() {
     []
   );
 
-  // ✅ Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Enter" && products.length > 0) addToCart(products[0]);
@@ -59,7 +72,7 @@ function POS() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [cart, addToCart]);
+  }, [cart, addToCart, products]);
 
   const updateQuantity = (id, delta) => {
     setCart((prevCart) =>
@@ -100,94 +113,94 @@ function POS() {
     printInvoice(invoice);
     setCart([]);
   };
-const printInvoice = (invoice) => {
-  const printWindow = window.open("", "_blank");
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Receipt - ${invoice.invoiceNo}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            color: #000;
-            line-height: 1.6;
-            width: 70mm;
-            margin: auto;
-            padding: 10px;
-          }
-          h2 {
-            font-size: 18px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 5px;
-          }
-          p, h3 {
-            margin: 0;
-            padding: 0;
-            text-align: center;
-          }
-          h3 {
-            font-size: 16px;
-            font-weight: bold;
-            margin: 8px 0;
-          }
-          hr {
-            border: none;
-            border-top: 1px dashed #333;
-            margin: 8px 0;
-          }
-          .items p {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin: 2px 0;
-          }
-          .total {
-            font-size: 15px;
-            font-weight: bold;
-            text-align: right;
-            margin-top: 8px;
-          }
-          .footer {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 12px;
-          }
-        </style>
-      </head>
-      <body>
-        <h2>Shukurullah Nig. Ltd</h2>
-        <p>Block 390, Talba Estate</p>
-        <p>Off Bida Road, Minna</p>
-        <p>09019286029</p>
-        <hr/>
-        <p><strong>Invoice No:</strong> ${invoice.invoiceNo}</p>
-        <p><strong>Date:</strong> ${invoice.date}</p>
-        <hr/>
-        <div class="items">
-        ${invoice.items
-          .map((item) =>
-            `<p><span>${item.name} x ${item.qty}</span><span>₦${(item.price * item.qty).toLocaleString()}</span></p>`
-          )
-          .join("")}
-        </div>
-        <hr/>
-        <div class="total">Total: ₦${invoice.total.toLocaleString()}</div>
-        <p><strong>Payment:</strong> ${invoice.paymentMethod}</p>
-        <hr/>
-        <p><strong>Attended By:</strong> ${invoice.attendant}</p>
-        <div class="footer">
-          <p>Thank you for your Patronage!</p>
-          <p>See you next time!</p>
-        </div>
-      </body>
-    </html>
-  `);
-  printWindow.document.close();
-  printWindow.print();
-};
 
+  const printInvoice = (invoice) => {
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Receipt - ${invoice.invoiceNo}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              font-size: 14px;
+              color: #000;
+              line-height: 1.6;
+              width: 70mm;
+              margin: auto;
+              padding: 10px;
+            }
+            h2 {
+              font-size: 18px;
+              font-weight: 700;
+              text-align: center;
+              margin-bottom: 5px;
+            }
+            p, h3 {
+              margin: 0;
+              padding: 0;
+              text-align: center;
+            }
+            h3 {
+              font-size: 16px;
+              font-weight: bold;
+              margin: 8px 0;
+            }
+            hr {
+              border: none;
+              border-top: 1px dashed #333;
+              margin: 8px 0;
+            }
+            .items p {
+              display: flex;
+              justify-content: space-between;
+              font-size: 13px;
+              margin: 2px 0;
+            }
+            .total {
+              font-size: 15px;
+              font-weight: bold;
+              text-align: right;
+              margin-top: 8px;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 10px;
+              font-size: 12px;
+            }
+          </style>
+        </head>
+        <body>
+          <h2>Shukurullah Nig. Ltd</h2>
+          <p>Block 390, Talba Estate</p>
+          <p>Off Bida Road, Minna</p>
+          <p>09019286029</p>
+          <hr/>
+          <p><strong>Invoice No:</strong> ${invoice.invoiceNo}</p>
+          <p><strong>Date:</strong> ${invoice.date}</p>
+          <hr/>
+          <div class="items">
+          ${invoice.items
+            .map((item) =>
+              `<p><span>${item.name} x ${item.qty}</span><span>₦${(item.price * item.qty).toLocaleString()}</span></p>`
+            )
+            .join("")}
+          </div>
+          <hr/>
+          <div class="total">Total: ₦${invoice.total.toLocaleString()}</div>
+          <p><strong>Payment:</strong> ${invoice.paymentMethod}</p>
+          <hr/>
+          <p><strong>Attended By:</strong> ${invoice.attendant}</p>
+          <div class="footer">
+            <p>Thank you for your Patronage!</p>
+            <p>See you next time!</p>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   const scrollToBottom = () => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
@@ -199,11 +212,10 @@ const printInvoice = (invoice) => {
         <h2 className="store-name">Shukurullah Nig. Ltd</h2>
         <p className="store-contact">Attendant: {attendantName}</p>
 
-        {/* --- Product Section --- */}
         <div className="products">
           {products.map((p) => (
             <div key={p.id} className="product-card">
-              <img src={p.image} alt={p.alt} />
+              <img src={p.image} alt={p.alt} onError={(e) => e.target.style.display = "none"} />
               <p>{p.name}</p>
               <p>₦{p.price}</p>
               <button onClick={() => addToCart(p)}>Add</button>
@@ -211,7 +223,6 @@ const printInvoice = (invoice) => {
           ))}
         </div>
 
-        {/* --- Cart Section --- */}
         <h3>Cart</h3>
         <div className="cart">
           {cart.map((item) => (
@@ -230,7 +241,6 @@ const printInvoice = (invoice) => {
         </div>
         <h4>Total: ₦{calculateTotal()}</h4>
 
-        {/* --- Payment Method --- */}
         <div className="payment-method">
           <label><strong>Payment Method:</strong></label>
           <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
@@ -243,7 +253,6 @@ const printInvoice = (invoice) => {
         <button onClick={handlePrint} disabled={cart.length === 0}>Print Receipt</button>
       </div>
 
-      {/* Scroll Buttons */}
       <button className="scroll-btn" onClick={showScrollButton ? scrollToTop : scrollToBottom}>
         {showScrollButton ? <FaArrowUp /> : <FaArrowDown />}
       </button>

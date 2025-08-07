@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
-import products from "./data/products"; // ✅ Correct path
+import products from "./data/products"; // Adjust the path as needed
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -9,24 +9,21 @@ function Dashboard() {
   const [todaySales, setTodaySales] = useState(0);
   const [totalProducts, setTotalProducts] = useState(products.length);
 
-  // ✅ Validate session and safely parse attendant data
   useEffect(() => {
     try {
       const storedAttendant = localStorage.getItem("attendant");
       if (!storedAttendant) {
-        navigate("/login"); // Redirect if no attendant session
+        navigate("/login");
         return;
       }
       const parsedAttendant = JSON.parse(storedAttendant);
       setAttendantName(parsedAttendant?.username || "Attendant");
     } catch {
-      // Clear corrupted data and redirect
       localStorage.removeItem("attendant");
       navigate("/login");
     }
   }, [navigate]);
 
-  // ✅ Calculate today's sales from invoices
   useEffect(() => {
     try {
       const invoices = JSON.parse(localStorage.getItem("invoices")) || [];
@@ -38,7 +35,7 @@ function Dashboard() {
 
       setTodaySales(sales);
     } catch {
-      setTodaySales(0); // Reset if data is corrupted
+      setTodaySales(0);
       localStorage.removeItem("invoices");
     }
   }, []);
@@ -64,14 +61,13 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Navigation Buttons */}
       <div className="button-group">
-        <button onClick={() => navigate("/pos")}>Go to POS</button>
-        <button onClick={() => navigate("/manage-products")}>Manage Products</button>
-        <button onClick={() => navigate("/kulikuli-production")}>Manage Production</button> {/* ✅ NEW */}
-        <button onClick={handleLogout} className="logout-btn">
-          Logout
-        </button>
+        <button onClick={() => navigate("/manage-sales")}>📊 Manage Sales</button>
+        <button onClick={() => navigate("/manage-products")}>📦 Manage Products</button>
+        <button onClick={() => navigate("/manage-materials")}>📋 Manage Materials</button>
+        <button onClick={() => navigate("/kulikuli-production")}>🏭 Manage Production</button>
+        <button onClick={handleLogout} className="logout-btn">🚪 Logout</button>
       </div>
     </div>
   );

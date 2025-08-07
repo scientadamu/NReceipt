@@ -41,13 +41,13 @@ const ProductionCost = ({ onSetView }) => {
     // ✅ Calculate raw materials dynamically
     const materials = [
       { name: "Groundnut", qty: mudus, price: prices.Groundnut?.price || 0 },
-      { name: "Pepper", qty: containerCount * 2, price: prices.Pepper?.price || 0 },
+      { name: "Pepper", qty: containerCount * 3, price: prices.Pepper?.price || 0 },
       { name: "Ginja", qty: containerCount * 1, price: prices.Ginja?.price || 0 },
       { name: "Salt", qty: containerCount * 2, price: prices.Salt?.price || 0 },
-      { name: "Sugar", qty: containerCount * 2, price: prices.Sugar?.price || 0 },
+      { name: "Sugar", qty: containerCount * 3.3, price: prices.Sugar?.price || 0 },
       { name: "Onions", qty: containerCount * 1, price: prices.Onions?.price || 0 },
       { name: "Lather", qty: containerCount * 2, price: prices.Lather?.price || 0 },
-      { name: "Gas", qty: (containerCount * 4) / 3, price: prices.Gas?.price || 0 },
+      { name: "Gas", qty: (containerCount * 4) / 2, price: prices.Gas?.price || 0 },
       { name: "Sack", qty: containerCount * 1, price: prices.Sack?.price || 0 },
     ];
 

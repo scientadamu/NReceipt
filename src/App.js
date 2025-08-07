@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./Dashboard.js";
-import POS from "./pages/POS";
+import ManageSales from "./pages/ManageSales.js";
 import ManageProducts from "./pages/ManageProducts";
 import KulikuliProduction from "./pages/KulikuliProduction"; // ✅ Import added
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -24,10 +24,10 @@ function App() {
         }
       />
       <Route
-        path="/pos"
+        path="/manage-sales" // ✅ FIXED: Corrected path
         element={
           <ProtectedRoute>
-            <POS />
+            <ManageSales />
           </ProtectedRoute>
         }
       />
@@ -40,7 +40,7 @@ function App() {
         }
       />
       <Route
-        path="/kulikuli-production" // ✅ New Route for Production Management
+        path="/kulikuli-production"
         element={
           <ProtectedRoute>
             <KulikuliProduction />

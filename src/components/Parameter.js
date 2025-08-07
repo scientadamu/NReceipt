@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import "./Parameter.css";
 
 const defaultPrices = {
-  Groundnut: { unit: "per mudu", price: 2200 },
-  Pepper: { unit: "per mudu", price: 2200 },
-  Ginja: { unit: "per cup", price: 200 },
+  Groundnut: { unit: "per mudu", price: 2275 },
+  Pepper: { unit: "per mudu", price: 2250 },
+  Ginja: { unit: "per cup", price: 1000 },
   Salt: { unit: "per sachet", price: 150 },
-  Sugar: { unit: "per mudu", price: 2300 },
-  Onions: { unit: "per rap", price: 200 },
-  Lather: { unit: "per pack", price: 1200 },
+  Sugar: { unit: "per mudu", price: 3300 },
+  Onions: { unit: "per rap", price: 500 },
+  Lather: { unit: "per pack", price: 1500 },
   Gas: { unit: "per kg", price: 1050 },
   Sack: { unit: "per sack", price: 1500 },
 };
